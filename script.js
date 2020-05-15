@@ -10,24 +10,56 @@
 
 */
 
+let name = prompt('Укажите ваш игровой ник: ');
+
+heigth = window.innerHeight-200;
 // Сначала выбираю блок с игроком
+
+document.writeln("Игрок: " + name);
 player = document.querySelector("#player"); 	/*Обращение к документу, где документ - это игровое поле, которое видит игрок*/
+player.style.position = "absolute";
+
+let enemySpeed = 10;
 
 // Количество жизней
-	lifes = 3;
+lifes = 3;
+score = 0;
+
+function moveUp(){
+	y = player.offsetTop;
+	y -= 80;
+	player.style.top = y + "px";
+	if(y < 0)
+		player.style.top = "0px";
+}
+
+function addScore(){
+	score = score + 1;
+	document.getElementById("score").innerHTML = "score: " + score;
+}
+
+
+function moveDown(){
+	y = player.offsetTop;
+	y += 80;
+	player.style.top = y + "px";
+	if(y > heigth)
+		player.style.top = (heigth) + "px";
+}
+
 
 // И здесь добавляю нажатие клавиши
-document.addEventListener('keydown', function(event) { // keydown - это событие нажатие какой-либо клавиши, а функция - это именно дейсвтие при нажатии клавиши
+document.addEventListener('keyup', function(event) { // keydown - это событие нажатие какой-либо клавиши, а функция - это именно дейсвтие при нажатии клавиши
 	
 
 	switch(event.keyCode) {
 		case 83: 					// 83 код клавиши S
-			player.style.top = player.offsetTop + 80 + "px";  /*Когда герой летит вниз, то пиксели идут вверх*/
+			moveDown();  /*Когда герой летит вниз, то пиксели идут вверх*/
 			break;
 
 
-		case 87:                    // W
-			player.style.top = player.offsetTop - 80 + "px";
+		case 87:
+			moveUp();
 			break;
 
 		case 32:  								// Space 
@@ -103,6 +135,7 @@ function isShot(bullet, timer) {						// Для того, чтобы узнат�
 			enemy.style.left = (leftE - 50) + "px";
 			clearInterval(enemy.dataset.timer);
 			setTimeout(function() {
+				addScore();
 				enemy.remove();
 				createEnemy();
 				bullet.remove();
@@ -138,7 +171,7 @@ function isDie() {
 
 // Создание врага 
 // <div class="enemy"></div>	
-function createEnemy() {
+function createEnemy() { 
 	let enemy = document.createElement ("div");
 	enemy.className = "enemy";
 	enemy.style.top = random(200, document.body.offsetHeight - 100) + "px";  // min 200
@@ -148,18 +181,23 @@ function createEnemy() {
 
 	var timerId = setInterval(function() {
 
-		enemy.style.left = (enemy.offsetLeft - 10) + "px"
+		
+		
+		enemy.style.left = (enemy.offsetLeft - enemySpeed) + "px"
 		if(enemy.offsetLeft + enemy.offsetWidth < 0) {
 			enemy.remove();
 			clearInterval(timerId);
 			createEnemy();
+			
 
 			// Отжимаем жизнь, если враг залетел за нас
 			die();
 		}
-
+		
 		isDie();
-	}, 100);
+	}, 100)
+	enemySpeed += 5;
+
 	enemy.dataset.timer = timerId;
 }
 
@@ -180,6 +218,7 @@ function die() {
 function endGame() {
 	document.body.innerHTML = "";
 	alert("Game over");
+	score = 0;
 	// Перезагрузка страницы
 	location.reload();
 }
@@ -188,6 +227,7 @@ function endGame() {
 function random(min, max) {
   let rand = min + Math.random() * (max + 1 - min);
   return Math.floor(rand);
+
 }
 
 
